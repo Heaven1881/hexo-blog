@@ -121,6 +121,7 @@ font:
 social:
   #LinkLabel: Link
   GitHub: https://github.com/Heaven1881
+  Mail: mailto:heaven1881@163.com
 
 
 # Social Links Icons
@@ -135,6 +136,7 @@ social_icons:
   GitHub: github
   Twitter: twitter
   Weibo: weibo
+  Mail: envelope
 
 
 # Sidebar Avatar
