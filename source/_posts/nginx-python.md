@@ -7,10 +7,8 @@ tags:
   - uwsgi
   - linux
 date: 2016-05-25 13:27:11
+categories: Nginx
 ---
-
-
-# 前言
 
 相比于Apache，Nginx是一个轻量级高性能的服务器和反向代理，其特点是资源占用少，并发能力高。下面我就介绍一下如何在Linux下基于Nginx搭建Python wsgi应用。
 

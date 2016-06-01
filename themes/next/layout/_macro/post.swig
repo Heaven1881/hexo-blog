@@ -121,6 +121,7 @@
               <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>{{ theme.busuanzi_count.page_pv_footer }}
               </span>
           {% endif %}
+
         </div>
       </header>
     {% endif %}

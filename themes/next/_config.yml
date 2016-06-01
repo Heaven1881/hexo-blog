@@ -15,7 +15,7 @@ keywords: "Hexo, NexT"
 rss:
 
 # Specify the date when the site was setup
-since: 2016/5/20
+since: 2016
 
 
 
@@ -29,7 +29,7 @@ menu:
   #home: /
   categories: /categories
   about: /about
-  archives: /archives
+  #archives: /archives
   tags: /tags
   #commonweal: /404.html
 
@@ -231,7 +231,7 @@ auto_excerpt:
 
 # MathJax Support
 mathjax:
-  enable: true
+  enable: false
   cdn: //cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 
 
@@ -295,9 +295,9 @@ facebook_sdk:
 # Show number of visitors to each article.
 # You can visit https://leancloud.cn get AppID and AppKey.
 leancloud_visitors:
-  enable: false
-  app_id: #<app_id>
-  app_key: #<app_key>
+  enable: true
+  app_id: mOdDWkRlJ62XICgv30gEBHUL-gzGzoHsz
+  app_key: P5YtWBcPvaE3cO76MHC3WCBE
 
 # Show PV/UV of the website/page with busuanzi.
 # Get more information on http://ibruce.info/2015/04/04/busuanzi/
