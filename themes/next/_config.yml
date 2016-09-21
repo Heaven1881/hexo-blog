@@ -162,8 +162,8 @@ toc:
 
 sidebar:
   # Sidebar Position, available value: left | right
-  position: left
-  #position: right
+  #position: left
+  position: right
 
   # Sidebar Display, available value:
   #  - post    expand on posts automatically. Default.
@@ -212,7 +212,7 @@ scroll_to_more: true
 # Automatically Excerpt. Not recommand.
 # Please use <!-- more --> in the post to control excerpt accurately.
 auto_excerpt:
-  enable: true
+  enable: false
   length: 100
 
 
@@ -231,12 +231,12 @@ auto_excerpt:
 
 # MathJax Support
 mathjax:
-  enable: false
+  enable: true
   cdn: //cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 
 
 # Swiftype Search API Key
-swiftype_key: 19m7UExg459jNyhvzYxS
+# swiftype_key: 19m7UExg459jNyhvzYxS
 
 # Baidu Analytics ID
 baidu_analytics: 0ea93ab861d7093ed7fb2b88880c865b
