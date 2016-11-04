@@ -4,6 +4,7 @@ tags:
   - hexo
   - next
   - 访客统计
+  - leancloud
 categories: Hexo
 date: 2016-05-31 16:09:13
 ---
