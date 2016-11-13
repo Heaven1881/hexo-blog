@@ -5,16 +5,20 @@ sitemap: false
 ---
 
 # 关于我
+- **中文名：**
+ - 罗富文
+- **英文名：** 
+ - Winton Luo
+- **Email：** 
+ - [winton.luo@outlook.com](mailto:winton.luo@outlook.com)
+- **个人简介：** 
+ - 于2016年毕业于北京清华大学计算机科学与技术系，现任职于金山软件集团。个人喜欢户外运动，业余爱好包括野营，攀岩，游泳等
+- **主要研究方向：** 
+ - Unix平台编程，Windows/Unix网络编程，分布式架构等
 
-||      |
-|:--|:-------|
-| 中文名 | 罗富文 |
-| 英文名 | Winton Luo |
-| Email | [winton.luo@outlook.com](mailto:winton.luo@outlook.com) |
-| 个人简介 | 于2016年毕业于北京清华大学计算机科学与技术系，曾在阿里巴巴集团实习，现任职于金山软件集团。比较喜欢户外运动，业余爱好包括野营，攀岩，游泳等 |
-| 主要研究方向 | Unix平台编程，Windows/Unix网络编程，分布式架构等|
-
+---
 # 关于博客
+
 使用[Hexo](https://hexo.io/)和[Coding.net](https://coding.net/)，我搭建了这个博客，我打算在这里分享我平时自学的知识。
 
 这里的文章欢迎任何形式的转载，但是希望可以注明出处并给出原文链接。

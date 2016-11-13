@@ -97,7 +97,7 @@ Nginx检查`listen`字段的步骤和规则如下
 2. 从所有备选Server中根据`listen`字段选出最匹配的Server，如果有多个最匹配的Server，则将其都选入待选列表中。需要注意的是，我们这里说的是“最匹配”，也就是说，在端口都相同的情况下，如果有Server监听的IP刚好等于客户端的IP，那么其余所有监听`0.0.0.0`的Server都不会被加入待选列表。
 3. 经过上面的筛选，如果只剩余一个Server，则Nginx会直接忽略`server_name`选择这一个Server处理客户端请求，如果有多个Server，则Nginx会继续比较`server_name`字段
 
-在下面的例子中，假设客户端的IP为`192.168。1.10`，服务器的域名为`example.com`，客户端访问域名`example.com`，则最后只有第一个服务器被选择来处理请求，因为`listen`字段一旦匹配则不再考虑`server_name`字段。
+在下面的例子中，假设客户端的IP为`192.168.1.10`，服务器的域名为`example.com`，客户端访问域名`example.com`，则只有第一个服务器被选择来处理请求，因为`listen`字段一旦匹配则不再考虑`server_name`字段。
 
 ```nginx
 server {
@@ -403,7 +403,10 @@ location /another {
 - `if`：一般出现在`Location`域中，用于条件控制，大多数情况都可以用更直观的`rewrite`代替`if`，因此建议尽量少用`if`。
 - `limit_except`：用于增加对访问权限的控制。
 
-
+---
+> 本文欢迎转载，但是希望注明出处并给出原文链接。
+> 如果你有任何疑问，欢迎在下方评论区留言，我会尽快答复。
+> 如果你喜欢或者不喜欢这篇文章，欢迎你发邮件到[winton.luo@outlook.com](mailto:winton.luo@outlook.com)告诉我你的想法，你的建议对我非常重要。
 
 [understanding-nginx]: https://n0where.net/understanding-the-nginx/
 

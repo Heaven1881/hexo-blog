@@ -43,3 +43,8 @@ sitemap:
 
 ### 自定义站点地图
 插件自动生成的`sitemap.xml`会包括网页中的大部分页面，但是并不是我们所有的网站都希望加入站点地图，例如[标签页面](http://lfwen.site/tags/)和[分类页面](http://lfwen.site/categories/)，对于类似的页面，只需要在对应的md文件的前置描述区添加`sitemap: false`即可。
+
+---
+> 本文欢迎转载，但是希望注明出处并给出原文链接。
+> 如果你有任何疑问，欢迎在下方评论区留言，我会尽快答复。
+> 如果你喜欢或者不喜欢这篇文章，欢迎你发邮件到[winton.luo@outlook.com](mailto:winton.luo@outlook.com)告诉我你的想法，你的建议对我非常重要。
