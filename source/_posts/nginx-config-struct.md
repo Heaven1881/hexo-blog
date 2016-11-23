@@ -76,7 +76,7 @@ http {
 Http域一般用来配置HTTP请求相关的全局配置和默认值，而实际上在同一台机器上可能同时部署了多个依赖HTTP的服务器，因此和每个服务器关联更高的的配置指令被保存在Http域的子域，也就是Server域。在Http域中可以设置的默认值包括：相关的日志文件的保存位置(`access_log`，`error_log`)，文件的异步I/O操作(`aio`, `sendfile`, `directio`)，服务器不同状态码对应的页面(`error_page`)，压缩选项(`gzip`和`gzip_disable`)。
 
 ## Server 域
-Server域处于Http域内部，Nginx允许同时定义多个Server域，他们在Nginx配置文件中的大概就像下面的格式。
+Server域处于Http域内部，Nginx允许同时定义多个Server域，他们在Nginx配置文件中的位置可以参考下面的代码。
 
 ```nginx
 # 这里是 main 域，也就是我们的全局环境
@@ -102,17 +102,36 @@ http {
 
 ```
 
-每个Server域在逻辑上代表了当前机器上一个HTTP服务器。因为Nginx可以同时指定多个虚拟服务器，因此Nginx需要根据用户的请求来决定让哪一个Server进行处理。
+每个Server域在逻辑上代表了当前机器上一个HTTP服务器。因为同一个Nginx可以同时运行多个虚拟服务器，所以Nginx需要为每一个HTTP请求选择对应服务器。
 
-Nginx通过下面两个字段来判断一个Server是否应该被用来处理某一个客户端请求。
+对于Server域来说，最终要的两个指令就是`listen`和`server_name`:
 
-- `listen`：IP和端口，Nginx会优先选择这一字段匹配的Server
-- `server_name`：域名。如果多个Server有相同的`listen`值，Nginx则进而匹配这一字段。
+- `listen`：指定当前Server响应的地址(IP和端口)，如果对应的地址接收到来自客户端的HTTP请求，那么Nginx会将这个请求发送给对应Server处理。
+- `server_name`：指定当前Server绑定的域名，如果多个Server有相同的`listen`值，那么Nginx会进一步尝试匹配这个字段。
 
-**Nginx 如何选择Server来处理请求**
-首先，Nginx检查客户端的IP地址和访问的端口号，从Server列表中根据`listen`字段筛选出匹配的Server。
+```nginx
 
-`listen`记录了每个Server选择监听的ip地址和端口，如果一个Server没有指定`listen`，则会取默认值`0.0.0.0:80`(如果Nginx不是以`root`身份运行，则默认值为`0.0.0.0:8080`)
+server {
+    listen 80;                  # 响应80端口的请求
+}
+
+server {
+    listen 192.168.10.103:80;   # 响应指定端口，来自192.168.10.103的HTTP请求
+    server www.lfwen.site;      # 绑定域名
+}
+
+server {
+    listen 0.0.0.0:80;          # 响应指定端口，来自任意IP的请求
+    server *.lfwen.site;        # 使用通配符绑定域名
+}
+
+```
+
+
+### Nginx 如何选择Server来处理HTTP请求
+首先，Nginx检查发送HTTP请求的客户端的IP地址和访问的端口号，从Server列表中根据`listen`字段筛选出匹配的Server。
+
+`listen`记录了每个Server选择**响应**的ip地址和端口，如果一个Server没有指定`listen`，则会使用默认值`0.0.0.0:80`(如果Nginx不是以`root`身份运行，则默认值为`0.0.0.0:8080`)
 
 `listen`字段可以设置为如下格式
 
@@ -130,7 +149,7 @@ Nginx检查`listen`字段的步骤和规则如下
 2. 从所有备选Server中根据`listen`字段选出最匹配的Server，如果有多个最匹配的Server，则将其都选入待选列表中。需要注意的是，我们这里说的是“最匹配”，也就是说，在端口都相同的情况下，如果有Server监听的IP刚好等于客户端的IP，那么其余所有监听`0.0.0.0`的Server都不会被加入待选列表。
 3. 经过上面的筛选，如果只剩余一个Server，则Nginx会直接忽略`server_name`选择这一个Server处理客户端请求，如果有多个Server，则Nginx会继续比较`server_name`字段
 
-在下面的例子中，假设客户端的IP为`192.168.1.10`，服务器的域名为`example.com`，客户端访问域名`example.com`，则只有第一个服务器被选择来处理请求，因为`listen`字段一旦匹配则不再考虑`server_name`字段。
+在下面的例子中，假设客户端的IP为`192.168.1.10`，客户端访问服务器时使用的域名是`example.com`，则只有第一个服务器被选择来处理请求，因为`listen`字段一旦匹配则不再考虑`server_name`字段。
 
 ```nginx
 server {
@@ -145,11 +164,9 @@ server {
 }
 ```
 
-如果有多个Server的`listen`字段一样，那么Nginx则会开始比较`server_name`字段。
-
 > Nginx通过检查客户端发送的HTTP请求的“Host”头部来确定客户端访问的域名，这个字段会用来和`server_name`比较。
 
-Nginx根据以下顺序来选择匹配的Server：
+如果`listen`字段相同，Nginx根据以下顺序来匹配`server_name`字段并选择对应的Server：
 
 - 寻找精确匹配的`server_name`，如果存在，则选择第一个匹配的Server
 - 寻找使用前置通配符`*`的`server_name`，如果能够匹配多个Server，则选择最长匹配
@@ -159,7 +176,7 @@ Nginx根据以下顺序来选择匹配的Server：
 
 > 如果需要在`server_name`中使用正则表达式，则需要在表达式之前使用`~`声明。
 
-Nginx通过`default_server`来指定默认的Server，否则使用第一个Server作为默认Server。需要注意的是，每一个IP和端口的组合只能指定一个`default_server`，只有`listen`字段符合要求才有可能会选为默认Server。
+通过在Server域中添加`default_server`指令来将当前Server指定为当前`listen`值的默认Server，如果没有使用`default_server`命令，则使用第一个Server作为默认Server。需要注意的是，每一个IP和端口的组合只能指定一个`default_server`，只有`listen`字段符合要求才有可能会选为默认Server。
 
 在下面的例子中，如果请求的域名是“cyberpunk.example.com”，则第二个Server会被选中处理请求。
 
@@ -177,7 +194,7 @@ server {
 }
 ```
 
-如果Nginx没有找到精确匹配的`server_name`，则会寻找使用前置通配符的`server_name`，如果有多个匹配，则选择最长匹配的Server。在下面的例子中，如果访问的域名是`www.example.com`，则第二个Server会被选中。
+如果Nginx没有找到精确匹配的`server_name`，则会寻找使用前置通配符的`server_name`，如果有多个匹配，则选择最长匹配的Server。在下面的例子中，如果访问的域名是`www.example.org`，则第二个Server会被选中。
 
 ```nginx
 server {
@@ -199,7 +216,7 @@ server {
 }
 ```
 
-如果没有找到匹配的`server_name`，Nginx会检查后置通配符的匹配情况，同样也会选择最长匹配。下面的例子中，访问的域名为`www.example.com`，第三个Server会被选择。
+如果没有找到匹配的`server_name`，Nginx会检查后置通配符的匹配情况，同样也会选择最长匹配。下面的例子中，访问的域名为`www.example.com`，第三个Server会被选中。
 
 ```nginx
 server {
@@ -247,14 +264,16 @@ server {
 如果上面的步骤无法选择出对应的Server，那么客户端的请求将会交由匹配`listen`字段的默认Server处理。
 
 ## Location 域
-一旦Nginx完成Server域的选择，接下来的工作就是选择对应Location域。每个Server可以定义多个Location域，每个Location对应一种类型的客户端请求，每个Location的格式如下
+Location域是Server域的子域，每个Server可以指定多个Location。对于Server来说，每一个Location都对应一种类型HTTP请求。
+
+一旦Nginx完成Server域的匹配，接下来的工作就是选择对应Location域。每个Location的格式如下
 
 ```nginx
-location (可选修饰符) (匹配字符串) {
+location (可选修饰符) (匹配URI) {
     . . . 
 }
 ```
-匹配字符串用于和客户端请求的URI作比较，可选修饰符会影响Nginx匹配URI的方式，可选修饰符的类型如下：
+匹配URI用于和客户端请求的URI作比较，可选修饰符会影响Nginx匹配URI的方式，可选修饰符的类型如下：
 
 - 无可选修饰符：在这种情况下，匹配字符串会被用于前缀匹配，即从URI的头部开始匹配
 - `=`：精确匹配
@@ -267,27 +286,34 @@ location (可选修饰符) (匹配字符串) {
 Location域处于Server域之下，与Server域不同的是，Location域允许相互嵌套，因此，我们可以借助这一特性去逐步拆解客户端访问的URI，提供更为清晰的管理方式。
 
 ```nginx
-# main context
 server {
-    # server context
-    location /match/criteria {
-        # first location context
+    location /blog {
+        # 匹配的请求包括: 
+        # /blog
+        # /blog/nginx
+        # /blog/index.html
     }
     
-    location /other/criteria {
-        # second location context
-        location nested_match {
-            # first nested location
+    location /mail {
+        location gmail {
+            # 匹配的请求例如
+            # /mail/gmail
+            # /mail/gmail/send
         }
 
-        location other_nested {
-            # second nested location
+        location outlook {
+            # 匹配的请求例如
+            # /mail/outlook
+            # /mail/outlook/send
         }
+        
+        # 这个位置可以匹配所有/mail的请求，例如
+        # /mail/hotmail
     }
 }
 ```
 
-**Location的例子**
+### Location的例子
 Location默认的匹配是前缀匹配，下面的Location可以匹配`/site`，`/site/page/index.html`和`/site/index.html`
 
 ```nginx
@@ -296,7 +322,7 @@ location /site {
 }
 ```
 
-使用`=`，可以修改Location的匹配方式为精确匹配，下面的例子只能匹配`/page`，不能匹配`/page/index.html`。不过这里需要注意的是，如果我们使用`index index.html`的指令来指定默认页面，则进入这个Loaction后，Nginx会先将URI补充为`/page/index.html`，然后会通过一个重定向跳转到另外一个可以处理这个URI的Location。
+使用`=`，可以修改Location的匹配方式为精确匹配，下面的例子只能匹配`/page`，不能匹配`/page/index.html`。不过这里需要注意的是，如果我们使用`index index.html`的指令来指定默认页面，则进入这个Loaction后，Nginx会先将URI补充为`/page/index.html`，然后会通过一个内部重定向跳转到另外一个可以处理这个URI的Location。
 
 ```nginx
 location = /page {
@@ -304,7 +330,7 @@ location = /page {
 }
 ```
 
-下面的Location可以匹配`a.png`，但是不能匹配`a.PNG`
+使用`~`可以指定正则表达式匹配，例如下面的Location可以匹配`a.png`，但是不能匹配`a.PNG`
 
 ```nginx
 location ~ \.(jpe?g|png|gif|ico)$ {
@@ -312,7 +338,7 @@ location ~ \.(jpe?g|png|gif|ico)$ {
 }
 ```
 
-下面的Location可以匹配`a.png`和`a.PNG`
+使用`~*`可以指定大小写不敏感的正则表达式匹配，例如下面的Location可以匹配`a.png`和`a.PNG`
 
 ```nginx
 location ~* \.(jpe?g|png|gif|ico)$ {
@@ -328,9 +354,9 @@ location ^~ /costumes {
 }
 ```
 
-**Nginx选择Location的顺序**
+### Nginx选择Location的顺序
 1. 精确匹配，使用`=`修饰的Loaction，如果其恰好匹配客户端请求的URI，则这个Location会被直接选择并结束搜索。
-2. 如果没有精确匹配，则Nginx会寻找最长的前缀匹配。如果寻找到的匹配包含修饰符`^~`，则直接结束搜索并选择这个Location作为最终选择，否则，将这个Location加入备选列表中，在遍历所有可能的Loaction后，从列表中选择最长的前缀匹配。
+2. 如果没有精确匹配，则Nginx会寻找最长的前缀匹配。如果寻找到的最长前缀匹配使用了修饰符`^~`，则直接结束搜索并选择这个Location作为最终选择，否则，将这个Location加入备选列表中，在完成步骤3，得到所有可能的Loaction后，从列表中选择最长的前缀匹配。
 3. 选择出最长的前缀匹配后，Nginx会继续进行正则表达式的Location匹配(包括大小写敏感和大小写不敏感的正则表达式匹配)。在这一步中，Nginx会选择第一个匹配的正则表达式的Location。
 4. 如果在步骤3中找到了匹配的正则表达式，则使用其对应的Location来处理请求。如果没有找到匹配的正则表达式，则使用步骤2中的最长前缀匹配Location。
 
