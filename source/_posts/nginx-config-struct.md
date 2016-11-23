@@ -40,36 +40,69 @@ context {
 
 main域可以用来存放一些全局的指令。全局的指令的值会为子域提供默认值，子域也可以根据需要对相应的指令进行重载。
 
-## Event 域
-Event域是Main域的一个子域，用于配置Nginx处理连接的方式，在Nginx配置文件中只能有一个Event域。Nginx使用基于事件的连接处理模型，一般在Event域中的指令都是用来选择worker处理连接的相关方法，或者用来修改对应方法的实现。
+## Events 域
+Events域是Main域的一个子域，在Nginx配置中只能有一个Events域。Nginx使用基于事件的处理模型，因此Events域一般用于指定Nginx工作进程(Worker Process)处理连接方式，例如同时处理的连接数，以及一些负载均衡相关的设置。
 
-Event域还可以用来配置其他的一些信息，例如worker同时处理的连接数，以及是否让每个worker一次只处理一个连接，是否让worker轮流处理连接。
+```nginx
+# 这里是 main 域，也就是我们的全局环境
+
+events {
+    # 这里是 events 域，只可以存在一个events域，在这里指定worker处理连接的方式
+    ...
+}
+```
+
+默认情况下，Nginx会选择当前平台下最有效的连接处理方法，例如在Linux平台下，Nginx会选择`epoll`方式s作为t连接处理方式。
 
 ## Http 域
-如果我们希望让Nginx作为一个Web服务器或者反向代理服务器，Http域就会被用来保存各种相关的配置，Http域里保存所有用来处理HTTP/HTTPS请求的指令。
+除了Events域以外，HTTP也是main域的一个子域。Http域内包含所有用于处理HTTP/HTTPS请求的指令，如果我们希望让Nginx作为一个Web服务器或者反向代理服务器，那么HTTP域的配置是必不可少的。
 
-和Event域一样，Http域必须直接是Main域的子域。
+和Events域一样，Http只能是Main域的子域。
 
-大部分更具体的配置被保存在Http域下面的Server域，在Http域里主要设置每个Server域的默认值，例如：相关的日志文件的保存位置(`access_log`，`error_log`)，文件的异步I/O操作(`aio`, `sendfile`, `directio`)，服务器不同状态码对应的页面(`error_page`)，压缩选项(`gzip`和`gzip_disable`)。
+```nginx
+# 这里是 main 域，也就是我们的全局环境
+
+events {
+    # 这里是 events 域，只可以存在一个events域，在这里指定worker处理连接的方式
+    ...
+}
+
+http {
+    # 这里是 http 域，记录所有和HTTP/HTTPS相关的Nginx指令
+}
+
+```
+
+Http域一般用来配置HTTP请求相关的全局配置和默认值，而实际上在同一台机器上可能同时部署了多个依赖HTTP的服务器，因此和每个服务器关联更高的的配置指令被保存在Http域的子域，也就是Server域。在Http域中可以设置的默认值包括：相关的日志文件的保存位置(`access_log`，`error_log`)，文件的异步I/O操作(`aio`, `sendfile`, `directio`)，服务器不同状态码对应的页面(`error_page`)，压缩选项(`gzip`和`gzip_disable`)。
 
 ## Server 域
 Server域处于Http域内部，Nginx允许同时定义多个Server域，他们在Nginx配置文件中的大概就像下面的格式。
 
 ```nginx
-# main context
-http: {
-    # http context
+# 这里是 main 域，也就是我们的全局环境
+
+events {
+    # 这里是 events 域，只可以存在一个events域，在这里指定worker处理连接的方式
+    ...
+}
+
+http {
+    # 这里是 http 域，记录所有和HTTP/HTTPS相关的Nginx指令
+    
     server {
-        # first server context
+        # 这里是 server 域，每个 server 域在逻辑上代表了当前机器上的一个HTTP服务器
     }
+    
     server {
-        # second server context
+        # 这里是 server 域，每个 server 域在逻辑上代表了当前机器上的一个HTTP服务器
     }
+    
+    ...
 }
 
 ```
 
-每个Server域代表了一个可以处理客户端请求的虚拟服务器。因为Nginx可以同时指定多个虚拟服务器，因此Nginx需要根据用户的请求来决定让哪一个Server进行处理。
+每个Server域在逻辑上代表了当前机器上一个HTTP服务器。因为Nginx可以同时指定多个虚拟服务器，因此Nginx需要根据用户的请求来决定让哪一个Server进行处理。
 
 Nginx通过下面两个字段来判断一个Server是否应该被用来处理某一个客户端请求。
 
