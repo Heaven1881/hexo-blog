@@ -8,24 +8,24 @@ date: 2016-05-29 13:23:22
 ---
 
 
-在本文，我们将讨论Nginx的基础配置结构，来让大家更好的理解Nginx的逻辑。
+在本文，我们将介绍Nginx的基础配置结构，来让大家更好的理解Nginx的逻辑。
 
 <!-- more -->
 
 > 原文链接 [Understanding the Nginx][understanding-nginx]
 > 本文主要结合这篇文章的内容和我自己的一些理解
 
-Nginx是一个高性能的Web服务器。除了可以很好的处理Web静态内容，Nginx在高并发的环境下表现也十分突出。Nginx是世界上最受青睐的服务器之一，它不仅是普通的Web服务器，还可以是邮件服务器以及反向代理服务器。
+Nginx是一个高性能Web服务器，在高并发的环境下表现也十分突出。Nginx是世界上最受青睐的服务器之一，它不仅是Web服务器，还可以是邮件服务器以及反向代理服务器。
 
-在本文，我们将讨论Nginx的基础配置结构，来让大家更好的理解Nginx的逻辑。
+在本文，我们将介绍Nginx的配置结构，来让大家更好的理解Nginx的逻辑。
 
-Nginx在逻辑上将组织为一个个包含嵌套和并列关系的结构，在这里我们把这样一个个的结构统称为域(Context)。对于Nginx来说每次处理客户端的请求就等价于在配置中选择能够匹配请求的域，而Nginx进行选择的过程就是我们在这篇文章需要讨论的内容。
+Nginx的配置文件在逻辑上组织为若干个相互嵌套和包含的结构，我们把每一个这样的结构统称为域(Context)。每当Nginx接收到客户端发来的HTTP请求，都会在配置文件中寻找与HTTP请求对应的域，而Nginx寻找的过程就是我们在这篇文章中主要讨论的内容。
 
 # 主要域(Context)
-如果你查看 Nginx 的配置文件(例如:`/etx/nginx/nginx.conf`)，你会发现每个域都是由`{`和`}`包裹起来的数据集，它们以类似于树的结构进行组织。域的内部则是由多条指令组成。一个域可以被另一个域包含，在这种情况下，上一级域指令会被传递到下一级域。指令是对Nginx进行配置的主要方法。在本文，我们会涉及到一些常用的指令，你也可以查阅[Alphabetical index of directives][nginx-directive-doc]了解更详细的信息。
+如果你查看 Nginx 的主配置文件(例如:`/etx/nginx/nginx.conf`)，你会发现每个域都是由`{`和`}`包裹起来的数据集，它们以类似于树的结构进行组织。域的内部则是由多条指令组成。一个域可以被另一个域包含，在这种情况下，上一级域指令会被传递到下一级。使用域指令是配置Nginx的主要方法。在本文，我们会简单介绍一些常用的指令，你也可以查阅[Alphabetical index of directives][nginx-directive-doc]了解更详细的信息。
 
 ## Main 域
-Main域也就是我们的全局环境，所有域的最外面就是Main域，在Nginx配置中，Main域的位置就像下面这样
+Main域也就是我们的全局环境，所有`{}`的最外面就是Main域，在Nginx配置中，Main域的位置就像下面这样
 
 ```nginx
 # 这里就是main域，处于所有域的外面
@@ -36,40 +36,73 @@ context {
 }
 ```
 
-任何出现在main域的指令都被称作“全局指令”。需要注意的是如果你的Nginx是根据不同模块进行配置的，例如一般我们会将每个server的配置分开写到`conf.d/*.conf`或者`server/*.conf`，在这些文件里，可能会包含一些看起来处于所有域外的指令，但是实际上这些指令并不是全局指令，它们会在其它文件中被引入到另一个域中。
+任何出现在main域的指令都被称作“全局指令”。需要注意的是一般我们会将每个server的配置分开写到`conf.d/*.conf`或者`server/*.conf`，在这些文件里，可能有一些指令在所有的`{}`外面，但是实际上它们并不是全局指令，因为它们会在`/etc/nginx/nginx.cond`文件中使用`include`指令被引入。
 
-main域可以用来存放一些设计到全局的，基础的指令。全局的指令的值会为子域提供默认值，子域也可以根据需要对相应的指令进行重载。
+main域可以用来存放一些全局的指令。全局的指令的值会为子域提供默认值，子域也可以根据需要对相应的指令进行重载。
 
-## Event 域
-Event域是Main域的一个子域，用于配置Nginx处理连接的方式，在Nginx配置文件中只能有一个Event域。Nginx使用基于事件的连接处理模型，一般在Event域中的指令都是用来选择worker处理连接的相关方法，或者用来修改对应方法的实现。
+## Events 域
+Events域是Main域的一个子域，在Nginx配置中只能有一个Events域。Nginx使用基于事件的处理模型，因此Events域一般用于指定Nginx工作进程(Worker Process)处理连接方式，例如同时处理的连接数，以及一些负载均衡相关的设置。
 
-Event域还可以用来配置其他的一些信息，例如worker同时处理的连接数，以及是否让每个worker一次只处理一个连接，是否让worker轮流处理连接。
+```nginx
+# 这里是 main 域，也就是我们的全局环境
+
+events {
+    # 这里是 events 域，只可以存在一个events域，在这里指定worker处理连接的方式
+    ...
+}
+```
+
+默认情况下，Nginx会选择当前平台下最有效的连接处理方法，例如在Linux平台下，Nginx会选择`epoll`方式s作为t连接处理方式。
 
 ## Http 域
-如果我们希望让Nginx作为一个Web服务器或者反向代理服务器，Http域就会被用来保存各种相关的配置，Http域里保存所有用来处理HTTP/HTTPS请求的指令。
+除了Events域以外，HTTP也是main域的一个子域。Http域内包含所有用于处理HTTP/HTTPS请求的指令，如果我们希望让Nginx作为一个Web服务器或者反向代理服务器，那么HTTP域的配置是必不可少的。
 
-和Event域一样，Http域必须直接是Main域的子域。
+和Events域一样，Http只能是Main域的子域。
 
-大部分更具体的配置被保存在Http域下面的Server域，在Http域里主要设置每个Server域的默认值，例如：相关的日志文件的保存位置(`access_log`，`error_log`)，文件的异步I/O操作(`aio`, `sendfile`, `directio`)，服务器不同状态码对应的页面(`error_page`)，压缩选项(`gzip`和`gzip_disable`)。
+```nginx
+# 这里是 main 域，也就是我们的全局环境
+
+events {
+    # 这里是 events 域，只可以存在一个events域，在这里指定worker处理连接的方式
+    ...
+}
+
+http {
+    # 这里是 http 域，记录所有和HTTP/HTTPS相关的Nginx指令
+}
+
+```
+
+Http域一般用来配置HTTP请求相关的全局配置和默认值，而实际上在同一台机器上可能同时部署了多个依赖HTTP的服务器，因此和每个服务器关联更高的的配置指令被保存在Http域的子域，也就是Server域。在Http域中可以设置的默认值包括：相关的日志文件的保存位置(`access_log`，`error_log`)，文件的异步I/O操作(`aio`, `sendfile`, `directio`)，服务器不同状态码对应的页面(`error_page`)，压缩选项(`gzip`和`gzip_disable`)。
 
 ## Server 域
 Server域处于Http域内部，Nginx允许同时定义多个Server域，他们在Nginx配置文件中的大概就像下面的格式。
 
 ```nginx
-# main context
-http: {
-    # http context
+# 这里是 main 域，也就是我们的全局环境
+
+events {
+    # 这里是 events 域，只可以存在一个events域，在这里指定worker处理连接的方式
+    ...
+}
+
+http {
+    # 这里是 http 域，记录所有和HTTP/HTTPS相关的Nginx指令
+    
     server {
-        # first server context
+        # 这里是 server 域，每个 server 域在逻辑上代表了当前机器上的一个HTTP服务器
     }
+    
     server {
-        # second server context
+        # 这里是 server 域，每个 server 域在逻辑上代表了当前机器上的一个HTTP服务器
     }
+    
+    ...
 }
 
 ```
 
-每个Server域代表了一个可以处理客户端请求的虚拟服务器。因为Nginx可以同时指定多个虚拟服务器，因此Nginx需要根据用户的请求来决定让哪一个Server进行处理。
+每个Server域在逻辑上代表了当前机器上一个HTTP服务器。因为Nginx可以同时指定多个虚拟服务器，因此Nginx需要根据用户的请求来决定让哪一个Server进行处理。
 
 Nginx通过下面两个字段来判断一个Server是否应该被用来处理某一个客户端请求。
 
