@@ -239,7 +239,8 @@ mathjax:
 # swiftype_key: 19m7UExg459jNyhvzYxS
 
 # Baidu Analytics ID
-#baidu_analytics: 0ea93ab861d7093ed7fb2b88880c865b
+# baidu_analytics: 0ea93ab861d7093ed7fb2b88880c865b
+baidu_analytics: b417bca165e57fdd3a91cf1f626e82d8
 
 # Duoshuo ShortName
 duoshuo_shortname: heaven1881
@@ -266,7 +267,7 @@ duoshuo_share: true
 
 
 # Google Analytics
-google_analytics: UA-86815496-1
+#google_analytics: UA-86815496-1
 
 # CNZZ count
 #cnzz_siteid:

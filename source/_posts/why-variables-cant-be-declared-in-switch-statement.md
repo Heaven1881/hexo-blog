@@ -1,8 +1,7 @@
 ---
 title: C/C++：为何编译器不允许在switch内声明变量
 tags:
-  - c
-  - c++
+  - c/c++
   - switch
 categories: 编程语言
 date: 2016-09-21 23:49:08

@@ -74,7 +74,7 @@ $ (gdb) list
 
 使用`next`命令时，函数`fun1()`被跳过。
 
-```sh
+```
 (gdb)
 11     fun1();
 (gdb) next
@@ -83,7 +83,7 @@ $ (gdb) list
 
 使用`step`命令时，gdb进入函数`fun1()`内部。
 
-```sh
+```
 (gdb)
 11     fun1();
 (gdb) step;
@@ -95,11 +95,19 @@ fun1 () at loop.c:5
 # 查看变量
 使用`print`命令(简写为`p`)来打印当前作用域中的变量。假设你有两个变量`int n`和`char* s`，可以使用`print`命令来查看变量的具体内容。gdb会根据变量类型来确定输出格式。
 
-```sh
+```
 (gdb) print n
 $1 = 900
 (gdb) print s
 $3 = 0x8048470 "Hello World!\n"
+(gdb)
+```
+
+gdb同时也支持对类结构变量的打印，借助`this`指针，你可以打印一个类的所有成员的值。
+
+```
+(gdb) print *this
+$1 = {a=1, b=2, c="abc"}
 (gdb)
 ```
 
@@ -108,7 +116,7 @@ $3 = 0x8048470 "Hello World!\n"
 # 修改变量
 使用`set`命令修改变量，例如，我们想要把`int n`的值改为3。
 
-```sh
+```
 (gdb) set n = 3
 (gdb) print n
 $4 = 3
