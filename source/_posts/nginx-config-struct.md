@@ -354,7 +354,9 @@ location ^~ /costumes {
 }
 ```
 
-### Nginx选择Location的顺序
+### 匹配顺序
+Nginx会根据以下顺序来选择匹配的Location域：
+
 1. 精确匹配，使用`=`修饰的Loaction，如果其恰好匹配客户端请求的URI，则这个Location会被直接选择并结束搜索。
 2. 如果没有精确匹配，则Nginx会寻找最长的前缀匹配。如果寻找到的最长前缀匹配使用了修饰符`^~`，则直接结束搜索并选择这个Location作为最终选择，否则，将这个Location加入备选列表中，在完成步骤3，得到所有可能的Loaction后，从列表中选择最长的前缀匹配。
 3. 选择出最长的前缀匹配后，Nginx会继续进行正则表达式的Location匹配(包括大小写敏感和大小写不敏感的正则表达式匹配)。在这一步中，Nginx会选择第一个匹配的正则表达式的Location。
@@ -362,45 +364,67 @@ location ^~ /costumes {
 
 和`server_name`稍有不同的是，默认情况下，正则表达式匹配的优先级比前缀匹配更高，你可以通过修饰符`^~`来提高前缀匹配的优先级。
 
-**Location之间的跳转条件**
-在多数情况，一个Location选择以后，接下来的操作都会以来于Location内部的指令来工作，与Location外部几乎没有关系。不过还是有少数指令可以实现Location之间的跳转，我们称之为内部重定向(internal redirect)。
+### 内部重定向
+一般情况下，当Nginx选择到了匹配的Location以后，接下来的操作都仅仅和这个Location域内部的指令有关，与其他Location域不再有联系。不过还是有少数指令可以实现Location之间的跳转，例如下面这四种指令，我们称之为内部重定向指令(internal redirect)。
 
-- index
-- try_files
-- rewrite
-- error_page
+- `index`：指定默认地址
+- `try_files`：检查文件是否存在
+- `rewrite`：重写URI
+- `error_page`：指定触发异常时跳转的页面
 
-`index`会始终触发一个内部重定向，特别是在我们使用修饰符为`=`的精确匹配时。一般情况下使用精确匹配可以加快Nginx匹配请求的速度，因为精确匹配一旦达成，则会直接终止搜索。但是，如果我们精确匹配的路径是一个目录，那么这个请求很可能会被内部重定向到其他的Location。
+一旦触发了内部重定向，Nginx会根据新的URI重新选择当前Server域内的Location。
 
-在下面的例子中，客户端访问的URI为`/exact`，虽然这个请求和第一个Locatoin精确匹配，但是由于`index`的作用，请求最终会跳转到第二个Location处理。
+> 这里提到的重定向和我们在HTTP经常提到的307重定向不同，Nginx的重定向仅仅发生在Nginx内部，HTTP客户端无法感知到重定向的发生，为了不与现有的表述混淆，我们把Nginx内部的重定向成为内部重定向。
+
+#### index
+`index`的作用是为对应的路径提供默认地址，我们看下面的例子，当客户端访问`/blog`时，Nginx会根据当前URI选择第一个Location，然后根据`index`指令将请求的URI更换为`/blog/index.html`，然后根据这个URI重新选择匹配的Location（当然还是同一个Location）。
 
 ```nginx
-index index.html;
-
-location = /exact {
-    . . .
-}
-
-location / {
-    . . .
+server {
+    ...
+    location /blog {
+        index index.html;
+    }
 }
 ```
 
-在这个种情况下，如果你真的需要让URI为`/exact`的请求匹配到第一个Location，可以通过设置一个非法的`index`值，同时将`autoindex`设置为`on`。
+`index`指令会始终触发一个内部重定向，z但是需要特别注意的是，如果我们使用修饰符为`=`的精确匹配，同时我们精确匹配的路径是一个目录，那么这个请求很可能会被内部重定向到其他的Location。在下面的例子中，客户端访问的URI为`/exact`，虽然这个请求和第一个Locatoin精确匹配，但是由于`index`的作用，请求最终会跳转到第二个Location处理。（还记得之前提到过的内容吗？一个域的指令会成为它的子域的设置的默认值，在下面的例子中，所有Location域都会受到`index`指令的影响）
 
 ```nginx
-location = /exact {
-    index nothing_will_match;
-    autoindex on;
-}
+server {
+    index index.html;       # index 的指令会传递给当前Server的所有Location域，成为它们的默认值
 
-location  / {
-    . . .
+    location = /exact {
+        ...
+    }
+
+    location / {
+        ...
+    }
 }
 ```
 
-这是组织`index`触发内部重定向的一种方法，不过在大部分Nginx配置文件中并不常见。
+现在看起来使用精确匹配会给我们带来一些问题，但是一般情况下使用精确匹配可以加快Nginx匹配请求的速度，因为精确匹配一旦达成，则会直接终止搜索，因此如果你已经妥善处理了`index`的问题，就大胆地使用Location精确匹配吧！
 
+如果我实在无法解决`index`的问题怎么办呢？例如在上面的情况下，`index`必须存在而且无法修改。如果你真的需要让URI为`/exact`的请求匹配到第一个Location，可以通过设置一个非法的`index`值，同时将`autoindex`设置为`on`。
+
+```nginx
+server {
+     index index.html;
+    
+     location = /exact {
+        index nothing_will_match.txt;     # 这里随便写一个不会匹配的文件名就可以
+        autoindex on;                     # 将autoindex的值设为on
+    }
+
+    location  / {
+        . . .
+    }
+}
+```
+在这里我不会解释为什么这样的设置可以达到我们需要的效果，如果大家感兴趣，可以打开[这个链接](http://nginx.org/en/docs/http/ngx_http_autoindex_module.html)查看Nginx对`autoindex`的描述。这是阻止`index`触发内部重定向的一种方法，不过在大部分Nginx配置文件中并不常见，同时也不推荐在Server域使用`index`指令。
+
+#### try_files
 `try_files`会依次检查文件和目录的是否存在，其最后一个参数可以是URI的形式，如果前面列举的文件或者目录都不存在，那么Nginx会触发一个内部重定向到这个URI。
 
 ```nginx
