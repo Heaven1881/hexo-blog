@@ -64,13 +64,13 @@ def application(env, start_response):
 $ uwsgi --socket 127.0.0.1:9090 --protocol=http -w wsgi
 ```
 
-这条命令会在前台直接运行uWSGI服务器，服务器监听来自`127.0.0.1:9090`的HTTP内容，我们通过`-w wsgi`指定使用`wsgi.py`处理HTTP请求。
+这条命令会在前台直接运行uWSGI服务器，我们通过`-w wsgi`指定使用Python脚本`wsgi.py`处理HTTP请求。
 
 **注意**：当uWSGI和Nginx一起运行时，需要移除选项`--protocol=http`，否则Nginx和uWSGI之间无法进行通信。原因是Nginx和uWSGI之间的通信并不依赖HTTP协议，而是uwsgi协议。
 
 > 对于在前台运行的uWSGI服务器，你可以使用`Ctrl+C`来停止其运行
 
-选项`--socket 127.0.0.1:9090`代表uWSGI监听`9090`端口，但是只接收IP地址为127.0.0.1(也就是本地IP)的请求，这是处于安全考虑的，uWSGI并不直接对外部提供服务，由我们的反向代理服务器Nginx负责和uWSGI通信。
+选项`--socket 127.0.0.1:9090`代表uWSGI监听`9090`端口，但是只接收IP地址为127.0.0.1(也就是本地IP)的请求，这是处于安全考虑的，uWSGI并不直接对外部提供服务，由我们的反向代理服务器Nginx负责代理客户端的HTTP请求。
 
 运行这条命令以后，通过浏览器访问`http://loaclhost:9090`应该能看到对应的页面。
 
@@ -143,12 +143,11 @@ http {
         # 作为反向代理连接到WSGI应用
         # 必需
         location / {
-
-            include            uwsgi_params;
-            # 这里的uwsgicluster来自刚才指定的upstream配置，这样可以提供负载均衡的功能
-            # 你也可以使用如下注释的代码直接指定地址
-            # uwsgi_pass    127.0.0.1:9090;
-            uwsgi_pass         uwsgicluster;
+        
+            include            uwsgi_params;    # 必需
+            
+            uwsgi_pass         uwsgicluster;    # 这里的uwsgicluster来自刚才指定的upstream配置，这样可以提供负载均衡的功能
+            # uwsgi_pass    127.0.0.1:9090;     # 你也可以这里的代码直接指定地址
 
             proxy_redirect     off;
             proxy_set_header   Host $host;
@@ -161,9 +160,9 @@ http {
 }
 ```
 
-使用这个配置，Nginx会将所有以`/static/`开头的访问转到对应的静态文件，将其他所有的请求转发到我们的WSGI应用。
+使用上面的配置，Nginx会将所有以`/static/`开头的访问转到对应的静态文件，将其他所有的请求转发到我们的WSGI应用。
 
-到这里就基本上完成了Nginx的配置，重启Nginx让配置文件生效。
+到这里就基本上完成了Nginx的配置，输入下面的命令可以让Nginx重新载入配置。
 
 ```bash
 $ sudo nginx -s reload
@@ -176,11 +175,13 @@ $ sudo service nginx stop
 $ sudo service nginx start
 ```
 
+如果你还不太理解Nginx的配置文件，欢迎参考我的另一篇博客：[深入理解 Nginx 配置](/2016/05/29/nginx-config-struct/)
+
 # 配置uWSGI服务器
 
-之前我们已经介绍了一些运行uWSGI服务器的方法了，但是每次启动服务都需要手动将参数输入命令行是十分麻烦的，而且不方便我们对配置进行调整。因此我们需要将uWSGI的配置写入文件中。
+之前我们已经介绍了一些运行uWSGI服务器的方法了，但是每次启动服务都需要手动将参数输入命令行是十分麻烦的，而且不方便我们调试。因此我们需要将uWSGI的配置写入文件中。
 
-uWSGI可以支持`.ini`和`.json`的配置文件，这两个文件的配制方法大同小异。这里我使用的`.ini`，下面直接给出我的配置文件代码。更多的配置选项说明，请参考[uWSGI配置文档翻译][uwsgi-option]
+uWSGI可以支持`.ini`和`.json`的配置文件，这两个文件的配制方法大同小异。这里我使用的是`.ini`，下面直接给出我的配置文件代码。更多的配置选项说明，请参考[uWSGI配置文档翻译][uwsgi-option]
 
 ```ini
 [uwsgi]
@@ -217,7 +218,7 @@ $ uwsgi --py-autoreload=1 --ini wsgi.ini
 这个命令会直接在后台运行我们的WSGI应用，其中`--py-autoreload=1`会检测`.py`文件的改动并重新载入对应的文件。在开发时是很有用的一个选项。
 
 
-一直到这一步，我们的基本上完成了全部的工作，接下来就是继续完善我们的WSGI应用了。你可以参考[WSGI Tutorial][wsgi-tutorial]来了解如何调用WSGI接口来处理`GET`和`POST`请求。也可参考我们[github仓库][github-py-nginx]，这里有相关的所有代码。
+现在，我们已经完成所有搭建工作，接下来就是继续完善我们的WSGI应用了。你可以参考[WSGI Tutorial][wsgi-tutorial]来了解如何调用WSGI接口来处理`GET`和`POST`请求。也可参考我的[github仓库][github-py-nginx]，这里有涉及到的所有代码。
 
 # 参考资料
 > [How to Deploy Python WSGI Applications Using uWSGI Web Server with Nginx] [nginx-python]
