@@ -8,7 +8,7 @@
 ### Steps to reproduce the behavior (重现步骤)
 
 
-### NexT Information
+### NexT Informations
 
 Add the  ✔  sign before an item which is affected by this behavior.
 
@@ -24,6 +24,6 @@ NexT Scheme:
   -  Mist
   -  Pisces
 
-### Other Information (Like Browser, System, Screenshots)
+### Other Informations (Like Browser, System, Screenshots)
 
 

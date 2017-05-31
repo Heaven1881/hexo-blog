@@ -12,7 +12,7 @@
 
       {% set display_toc = is_post and theme.toc.enable %}
 
-      {% if display_toc and toc(page.content).length > 1 %}
+      {% if display_toc %}
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
             {{ __('sidebar.toc') }}
@@ -23,48 +23,37 @@
         </ul>
       {% endif %}
 
-      <section class="site-overview sidebar-panel{% if not display_toc or toc(page.content).length <= 1 %} sidebar-panel-active{% endif %}">
+      <section class="site-overview sidebar-panel {% if not display_toc %} sidebar-panel-active {% endif %}">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="{{ url_for( theme.avatar | default(theme.images + '/avatar.gif') ) }}"
                alt="{{ theme.author }}" />
           <p class="site-author-name" itemprop="name">{{ theme.author }}</p>
-           {% if theme.seo %}
-              <p class="site-description motion-element" itemprop="description">{{ theme.signature }}</p>
-           {% else %}
-              <p class="site-description motion-element" itemprop="description">{{ theme.description }}</p>
-          {% endif %}
+          <p class="site-description motion-element" itemprop="description">{{ theme.description }}</p>
         </div>
         <nav class="site-state motion-element">
-
-          {% if config.archive_dir != '/' %}
-            <div class="site-state-item site-state-posts">
-              <a href="{{ url_for(theme.menu.archives) }}">
-                <span class="site-state-item-count">{{ site.posts.length }}</span>
-                <span class="site-state-item-name">{{ __('state.posts') }}</span>
-              </a>
-            </div>
-          {% endif %}
+          <div class="site-state-item site-state-posts">
+            <a href="{{ url_for(theme.menu.archives) }}">
+              <span class="site-state-item-count">{{ site.posts.length }}</span>
+              <span class="site-state-item-name">{{ __('state.posts') }}</span>
+            </a>
+          </div>
 
           {% if site.categories.length > 0 %}
-            {% set categoriesPageQuery = site.pages.find({type: 'categories'}, {lean: true}) %}
-            {% set hasCategoriesPage = categoriesPageQuery.length > 0 %}
             <div class="site-state-item site-state-categories">
-              {% if hasCategoriesPage %}<a href="{{ url_for(categoriesPageQuery[0].path) }}">{% endif %}
+              {% if theme.menu.categories %}<a href="{{ url_for(theme.menu.categories) }}">{% endif %}
                 <span class="site-state-item-count">{{ site.categories.length }}</span>
                 <span class="site-state-item-name">{{ __('state.categories') }}</span>
-              {% if hasCategoriesPage %}</a>{% endif %}
+              {% if theme.menu.categories %}</a>{% endif %}
             </div>
           {% endif %}
 
           {% if site.tags.length > 0 %}
-            {% set tagsPageQuery = site.pages.find({type: 'tags'}, {lean: true}) %}
-            {% set hasTagsPage = tagsPageQuery.length > 0 %}
             <div class="site-state-item site-state-tags">
-              {% if hasTagsPage %}<a href="{{ url_for(tagsPageQuery[0].path) }}">{% endif %}
+              {% if theme.menu.tags %}<a href="{{ url_for(theme.menu.tags) }}">{% endif %}
                 <span class="site-state-item-count">{{ site.tags.length }}</span>
                 <span class="site-state-item-name">{{ __('state.tags') }}</span>
-              {% if hasTagsPage %}</a>{% endif %}
+              {% if theme.menu.tags %}</a>{% endif %}
             </div>
           {% endif %}
 
@@ -97,7 +86,7 @@
         {% set cc = {'by': 1, 'by-nc': 1, 'by-nc-nd': 1, 'by-nc-sa': 1, 'by-nd': 1, 'by-sa': 1, 'zero': 1} %}
         {% if theme.creative_commons in cc %}
           <div class="cc-license motion-element" itemprop="license">
-            <a href="https://creativecommons.org/{% if theme.creative_commons === 'zero' %}publicdomain/zero/1.0{% else %}licenses/{{ theme.creative_commons }}/4.0{% endif %}/" class="cc-opacity" target="_blank">
+            <a href="http://creativecommons.org/licenses/{{ theme.creative_commons }}/4.0" class="cc-opacity" target="_blank">
               <img src="{{ url_for(theme.images) }}/cc-{{ theme.creative_commons }}.svg" alt="Creative Commons" />
             </a>
           </div>
@@ -120,39 +109,23 @@
           </div>
         {% endif %}
 
-        {% include '../_custom/sidebar.swig' %}
-
       </section>
 
-      {% if display_toc and toc(page.content).length > 1 %}
-      <!--noindex-->
+      {% if display_toc %}
         <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
           <div class="post-toc">
-
-            {% if page.toc_number === undefined %}
+            {% if page.toc_number === undefine %}
               {% set toc = toc(page.content, { "class": "nav", list_number: theme.toc.number }) %}
             {% else %}
-              {% set toc = toc(page.content, { "class": "nav", list_number: page.toc_number }) %}
+              {% set toc = toc(page.content, {"class": "nav", list_number: page.toc_number}) %}
             {% endif %}
-
             {% if toc.length <= 1 %}
               <p class="post-toc-empty">{{ __('post.toc_empty') }}</p>
             {% else %}
               <div class="post-toc-content">{{ toc }}</div>
             {% endif %}
-
           </div>
         </section>
-      <!--/noindex-->
-      {% endif %}
-
-      {% if theme.sidebar.b2t %}
-        <div class="back-to-top">
-          <i class="fa fa-arrow-up"></i>
-          {% if theme.sidebar.scrollpercent %}
-            <span id="scrollpercent"><span>0</span>%</span>
-          {% endif %}
-        </div>
       {% endif %}
 
     </div>
