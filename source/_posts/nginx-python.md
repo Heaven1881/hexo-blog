@@ -29,7 +29,14 @@ uWSGI也是一个服务器，它和php-cgi类似，提供的就是执行对应�
 PythonWeb服务器网关接口（Python Web Server Gateway Interface)，缩写是WSGI。WSGI是Python应用程序或框架和Web服务器之间的一种接口。我们把运行在uWSGI服务上的Python程序称为WSGI应用。
 
 # 环境准备
-在继续安装之前，你需要先确保自己的服务器上安装有`Python`以及`pip`，其对应的安装方法在网上可以容易的找到。我使用的操作系统是`CentOS`使用`yum`管理和安装软件。其他平台的安装方法也大同小异，如果操作系统是`Debian`系列的，例如`Ubuntu`，则理论上只要将下面命令的`yum`改变为`apt-get`即可。
+在继续安装之前，你需要先确保自己的服务器上安装有`Python`以及`pip`，建议使用的`Python`版本为`2.6`。其对应的安装方法在网上可以容易的找到。我使用的操作系统是`CentOS`使用`yum`管理和安装软件。其他平台的安装方法也大同小异，如果操作系统是`Debian`系列的，例如`Ubuntu`，则理论上只要将下面命令的`yum`改变为`apt-get`即可。
+
+**安装uWSGI依赖项**
+
+```bash
+$ yum -y update
+$ yum install python-devel
+```
 
 **下载并安装uWSGI**
 使用`pip`安装uWSGI
@@ -42,7 +49,7 @@ $ pip install uwsgi
 在不同Linux平台下安装的方法各不相同，我这里使用的是`CentOS`，使用的命令如下
 
 ```bash
-$ sudo yum install nginx
+$ yum install nginx
 ```
 
 # 创建WSGI应用
