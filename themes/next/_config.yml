@@ -360,6 +360,13 @@ changyan:
   appid:
   appkey:
 
+# Gitment comments
+gitment:
+  enable: true
+  owner: Heaven1881
+  repo: hexo-blog
+  client_id: 5f08fc04e24df836db2d
+  client_secret: 04fedffa00bc90b9229594e0aeabfadb1b7af59c
 
 # Valine.
 # You can get your appid and appkey from https://leancloud.cn
@@ -374,7 +381,7 @@ valine:
 
 # Support for youyan comments system.
 # You can get your uid from http://www.uyan.cc
-#youyan_uid: your uid
+# youyan_uid: 2151711
 
 # Support for LiveRe comments system.
 # You can get your uid from https://livere.com/insight/myCode (General web site)
