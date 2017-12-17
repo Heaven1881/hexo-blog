@@ -24,19 +24,3 @@ sitemap: false
 
 如果你喜欢或者不喜欢这个博客，都请把你的想法发送到 [winton.luo@outlook.com](mailto:winton.luo@outlook.com) 告诉我，你的意见和建议对我十分重要。你也可以在每篇文章底部的评论区留下你的问题，我会尽快回复。
 
----
-
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"heaven1881"};
-(function() {
-    var ds = document.createElement('script');
-    ds.type = 'text/javascript';ds.async = true;
-    ds.src = 'http://static.duoshuo.com/embed.js';
-    ds.charset = 'UTF-8';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();
-</script>
-
-> 最近访客
-
-<div class="ds-recent-visitors" data-num-items="32" data-avatar-size="42" id="ds-recent-visitors"></div>
