@@ -43,7 +43,3 @@ date: 2016-12-13 20:14:09
 > [面向对象之继承和组合浅谈-破狼-博客园](http://www.cnblogs.com/whitewolf/archive/2010/05/03/1726519.html)
 > [C++中的继承和组合区别使用](http://www.cnblogs.com/BeyondAnyTime/archive/2012/05/20/2510770.html)
 
----
-> 本文欢迎转载，但是希望注明出处并给出原文链接。
-> 如果你有任何疑问，欢迎在下方评论区留言，我会尽快答复。
-> 如果你喜欢或者不喜欢这篇文章，欢迎你发邮件到[winton.luo@outlook.com](mailto:winton.luo@outlook.com)告诉我你的想法，你的建议对我非常重要。

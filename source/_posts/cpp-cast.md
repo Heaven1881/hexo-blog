@@ -43,18 +43,18 @@ int main()
     int i = 123456;
     B b;
     C c;
-    
+
     char c1 = i;                            // 可以编译通过，但是会有警告
     char c2 = static_cast<char>(i);         // OK
-    
+
     double* pd = static_cast<double*>(&i);  // 错误：无关类型转换
-    
+
     void* pvb = static_cast<void*>(&b);     // OK
     B* pb = static_cast<B*>(pvb);           // OK
     C* pc = static_cast<C*>(pvb);           // 这里可以编译通过，但是会产生运行错误
-    
+
     B* pnil = static_cast<B*>(NULL);        // OK
-    
+
     A* pa = &B;
     pb = static_cast<B*>(pa);               // OK
     pc = static_cast<C*>(pa);               // 可以编译通过，但是会产生运行错误
@@ -80,12 +80,12 @@ int main()
     B b;
     C c;
     D d;
-    
+
     A* pa = &B;
     B* pb = dynamic_cast<B*>(pa);   // OK
     D* pd = dynamic_cast<D*>(pa);   // pd == NULL
-    
-    D* pd = dynamic_cast<D*>(&b);  // pc == NULL，因为B和C没有继承关系   
+
+    D* pd = dynamic_cast<D*>(&b);  // pc == NULL，因为B和C没有继承关系
 }
 ```
 
@@ -106,18 +106,12 @@ int main()
 {
     A* pa = new A();
     B* pb;
-    
+
     pb = static_cast<B*>(pa);       // 编译通过，但是运行报错
     pb = dynamic_cast<B*>(pa);      // OK，实际运行返回NULL
     pb = reinterpret_cast<B*>(pa);  // OK，但是实际的结果无法预期
-    
+
     delete pa;
 }
 ```
 
-
-
----
-> 本文欢迎转载，但是希望注明出处并给出原文链接。
-> 如果你有任何疑问，欢迎在下方评论区留言，我会尽快答复。
-> 如果你喜欢或者不喜欢这篇文章，欢迎你发邮件到[winton.luo@outlook.com](mailto:winton.luo@outlook.com)告诉我你的想法，你的建议对我非常重要。

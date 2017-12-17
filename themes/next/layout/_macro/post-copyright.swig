@@ -1,7 +1,12 @@
+<hr>
 <ul class="post-copyright">
   <li class="post-copyright-author">
     <strong>{{ __('post.copyright.author') + __('symbol.colon') }}</strong>
     {{ post.author | default(config.author) }}
+  </li>
+  <li class="post-copyright-email">
+    <strong>{{ __('post.copyright.email') + __('symbol.colon') }}</strong>
+    {{ theme.post_copyright.email | default(config.email) }}
   </li>
   <li class="post-copyright-link">
     <strong>{{ __('post.copyright.link') + __('symbol.colon') }}</strong>
