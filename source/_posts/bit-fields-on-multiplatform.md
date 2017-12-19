@@ -80,3 +80,6 @@ struct BitFields {
 # 结论
 总得来说，在跨平台编程中并不适合使用bit-fields。最稳妥的方法是还是手动进行数据的序列化操作。
 
+# 参考资料
+> [Size of struct with bitfields different between Linux (gcc) and Windows (mingw32 gcc)
+](https://stackoverflow.com/questions/31349819/size-of-struct-with-bitfields-different-between-linux-gcc-and-windows-mingw32)
