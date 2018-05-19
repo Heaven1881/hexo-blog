@@ -2,7 +2,10 @@
 title: CALM：一致性与逻辑单调
 date: 2018-05-13 09:33:17
 tags:
-categories:
+ - 一致性
+ - 单调逻辑
+ - CALM
+categories: 分布式架构
 ---
 
 
