@@ -229,10 +229,10 @@ post_wordcount:
   #description: ex. subscribe to my blog by scanning my public wechat account
 
 # Reward
-#reward_comment: Donate comment here
-#wechatpay: /images/wechatpay.jpg
-#alipay: /images/alipay.jpg
-#bitcoin: /images/bitcoin.png
+reward_comment: 此文有用? 求鼓励!
+wechatpay: /uploads/wechatpay.jpg
+alipay: /uploads/alipay.jpg
+# bitcoin: /images/bitcoin.png
 
 # Declare license on posts
 post_copyright:
@@ -696,10 +696,10 @@ vendors:
   # Internal version: 1.0.2
   # See: https://github.com/HubSpot/pace
   # Or use direct links below:
-  # pace: //cdn.bootcss.com/pace/1.0.2/pace.min.js
-  # pace_css: //cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-flash.min.css
-  pace:
-  pace_css:
+  pace: //cdn.bootcss.com/pace/1.0.2/pace.min.js
+  pace_css: //cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-flash.min.css
+  # pace:
+  # pace_css:
 
   # Internal version: 1.0.0
   # https://github.com/hustcc/canvas-nest.js
